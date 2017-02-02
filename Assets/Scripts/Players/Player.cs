@@ -6,18 +6,28 @@ using UnityEngine;
 [RequireComponent(typeof(GunController))]
 public class Player : Entity
 {
-
+    public int playerNumber = 1;
     public float moveSpeed = 5;
     private PlayerController controller;
     private GunController gun;
     private Camera playerCamera;
+    private CameraCtrl camCtrl;
 
     protected override void Start()
     {
         base.Start();
         controller = GetComponent<PlayerController>();
         gun = GetComponent<GunController>();
-        playerCamera = Camera.main;
+        camCtrl = GameObject.FindWithTag("Player" + playerNumber + "CamHolder").GetComponent<CameraCtrl>();
+        Camera[] sceneCameras = Camera.allCameras;
+        for(int i = 0; i< sceneCameras.Length; i++)
+        {
+            if (sceneCameras[i].CompareTag("Player" + playerNumber + "Camera"))
+            {
+                playerCamera = sceneCameras[i];
+                break;
+            }
+        }
     }
 
     void Update()
@@ -46,6 +56,16 @@ public class Player : Entity
         if (Input.GetMouseButton(0))
         {
             gun.Shoot();
+        }
+
+        //Camera
+        if (Input.GetKey(KeyCode.Q))
+        {
+            camCtrl.Rotate('Q');
+        }
+        if(Input.GetKey(KeyCode.E))
+        {
+            camCtrl.Rotate('E');
         }
     }
 }
