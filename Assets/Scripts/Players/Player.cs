@@ -20,7 +20,7 @@ public class Player : Entity
         gun = GetComponent<GunController>();
         camCtrl = GameObject.FindWithTag("Player" + playerNumber + "CamHolder").GetComponent<CameraCtrl>();
         Camera[] sceneCameras = Camera.allCameras;
-        for(int i = 0; i< sceneCameras.Length; i++)
+        for (int i = 0; i < sceneCameras.Length; i++)
         {
             if (sceneCameras[i].CompareTag("Player" + playerNumber + "Camera"))
             {
@@ -42,7 +42,7 @@ public class Player : Entity
 
         //Rotation
         Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+        Plane groundPlane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
         float rayDistance;
 
         if (groundPlane.Raycast(ray, out rayDistance))
@@ -63,7 +63,7 @@ public class Player : Entity
         {
             camCtrl.Rotate('Q');
         }
-        if(Input.GetKey(KeyCode.E))
+        if (Input.GetKey(KeyCode.E))
         {
             camCtrl.Rotate('E');
         }

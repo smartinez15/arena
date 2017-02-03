@@ -14,11 +14,14 @@ public class CameraCtrl : MonoBehaviour
     private Quaternion rot;
     private bool rotate;
     private bool allowRot;
+    private bool playerAlive;
 
     void Start()
     {
         //Find the player
         target = GameObject.FindWithTag("Player" + playerNumber).transform;
+        target.GetComponent<Entity>().OnDeath += OnPlayerDeath;
+        playerAlive = true;
 
         // Calculate the initial offset.
         offset = transform.position - target.position;
@@ -26,6 +29,11 @@ public class CameraCtrl : MonoBehaviour
         allowRot = true;
 
         rot = transform.rotation;
+    }
+
+    void OnPlayerDeath()
+    {
+        playerAlive = false;
     }
 
     public void Rotate(char dir)
@@ -48,25 +56,28 @@ public class CameraCtrl : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Create a postion the camera is aiming for based on the offset from the target.
-        Vector3 targetCamPos = target.position + offset;
-
-        // Smoothly interpolate between the camera's current position and it's target position.
-        transform.position = Vector3.Lerp(transform.position, targetCamPos, smooth * Time.deltaTime);
-
-        if (rotate)
+        if (playerAlive)
         {
-            float delta = rot.eulerAngles.y;
-            transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotationSmooth * Time.deltaTime);
-            delta -= transform.localEulerAngles.y;
-            if (Mathf.Abs(delta) < 5f)
+            // Create a postion the camera is aiming for based on the offset from the target.
+            Vector3 targetCamPos = target.position + offset;
+
+            // Smoothly interpolate between the camera's current position and it's target position.
+            transform.position = Vector3.Lerp(transform.position, targetCamPos, smooth * Time.deltaTime);
+
+            if (rotate)
             {
-                allowRot = true;
-            }
-            if (Mathf.Abs(delta)<0.2f)
-            {
-                rotate = false;
-                transform.localRotation = rot;
+                float delta = rot.eulerAngles.y;
+                transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotationSmooth * Time.deltaTime);
+                delta -= transform.localEulerAngles.y;
+                if (Mathf.Abs(delta) < 5f)
+                {
+                    allowRot = true;
+                }
+                if (Mathf.Abs(delta) < 0.2f)
+                {
+                    rotate = false;
+                    transform.localRotation = rot;
+                }
             }
         }
     }

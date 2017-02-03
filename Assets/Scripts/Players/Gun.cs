@@ -4,10 +4,17 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
+    public float fireRate = 500;
+    public float bulletSpeed = 5;
+    public int damage = 1;
+    public float bulletLifeSpan = 2;
+    public bool bulletRicochet = false;
+
     public Transform muzzle;
     public Projectile bullet;
-    public float fireRate = 500;
-    public float muzzleVelocity = 5;
+
+    public Transform shellEject;
+    public Transform shell;
 
     private float nextShotTime;
 
@@ -17,7 +24,9 @@ public class Gun : MonoBehaviour
         {
             nextShotTime = Time.time + fireRate / 1000;
             Projectile newBullet = Instantiate(bullet, muzzle.position, muzzle.rotation) as Projectile;
-            newBullet.SetSpeed(muzzleVelocity);
+            newBullet.SetGunOptions(bulletSpeed, damage, bulletLifeSpan, bulletRicochet);
+
+            Instantiate(shell, shellEject.position, shellEject.rotation);
         }
     }
 }

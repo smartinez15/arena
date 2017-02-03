@@ -10,12 +10,19 @@ public class Entity : MonoBehaviour, IDamageable
     protected int health;
     protected bool dead;
 
+    public event System.Action OnDeath;
+
     protected virtual void Start()
     {
         health = startingHealth;
     }
 
-    public void TakeHit(int damage, RaycastHit hit)
+    public virtual void TakeHit(int damage, Vector3 hitpoint, Vector3 hitDirection)
+    {
+        TakeDamage(damage);
+    }
+
+    public virtual void TakeDamage(int damage)
     {
         health -= damage;
 
@@ -25,9 +32,14 @@ public class Entity : MonoBehaviour, IDamageable
         }
     }
 
+    [ContextMenu("Self Destruct")]
     protected void Die()
     {
         dead = true;
-        GameObject.Destroy(gameObject);
+        if (OnDeath != null)
+        {
+            OnDeath();
+        }
+        Destroy(gameObject);
     }
 }
