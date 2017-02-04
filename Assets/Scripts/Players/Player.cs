@@ -55,7 +55,11 @@ public class Player : Entity
         //Weapon
         if (Input.GetMouseButton(0))
         {
-            gun.Shoot();
+            gun.OnTriggerHold();
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            gun.OnTriggerReleased();
         }
 
         //Camera
