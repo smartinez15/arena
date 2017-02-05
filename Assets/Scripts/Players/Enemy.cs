@@ -15,22 +15,21 @@ public class Enemy : Entity
 
     public GameObject deathFX;
 
-    private State state = State.Idle;
-    private NavMeshAgent pathFinder;
-    private Transform target;
-    private Entity targetEntity;
-    private Material skinMaterial;
+    State state = State.Idle;
+    NavMeshAgent pathFinder;
+    Transform target;
+    Entity targetEntity;
+    Material skinMaterial;
+    Color skinOriginalColor;
 
-    private Color originalColor;
+    float attackDistance = 0.5f;
+    float timeBwettenAttacks = 1;
+    int attackDamage = 1;
+    float nextAttackTime;
+    float collisionRadius;
+    float targetCollisionRadius;
 
-    private float attackDistance = 0.5f;
-    private float timeBwettenAttacks = 1;
-    private int attackDamage = 1;
-    private float nextAttackTime;
-    private float collisionRadius;
-    private float targetCollisionRadius;
-
-    private bool hasTarget;
+    bool hasTarget;
 
     void Awake()
     {
@@ -67,8 +66,9 @@ public class Enemy : Entity
             attackDamage = targetEntity.startingHealth / hitPoints;
         }
         startingHealth = health;
-        skinMaterial = GetComponent<Renderer>().material;
+        skinMaterial = GetComponent<Renderer>().sharedMaterial;
         skinMaterial.color = skinColor;
+        skinOriginalColor = skinColor;
     }
 
     public override void TakeHit(int damage, Vector3 hitpoint, Vector3 hitDirection)
@@ -132,7 +132,7 @@ public class Enemy : Entity
             yield return null;
         }
 
-        skinMaterial.color = originalColor;
+        skinMaterial.color = skinOriginalColor;
         pathFinder.enabled = true;
         state = State.Chasing;
     }

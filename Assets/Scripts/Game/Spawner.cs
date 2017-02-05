@@ -114,6 +114,7 @@ public class Spawner : MonoBehaviour
 
     void OnPlayerDeath()
     {
+        Cursor.visible = true;
         isDisabled = true;
     }
 

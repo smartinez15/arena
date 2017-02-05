@@ -18,6 +18,10 @@ public class Player : Entity
     protected override void Start()
     {
         base.Start();
+    }
+
+    void Awake()
+    {
         controller = GetComponent<PlayerController>();
         gun = GetComponent<GunController>();
         camCtrl = GameObject.FindWithTag("Player" + playerNumber + "CamHolder").GetComponent<CameraCtrl>();
@@ -30,6 +34,13 @@ public class Player : Entity
                 break;
             }
         }
+        FindObjectOfType<Spawner>().OnNewWave += OnNewWave;
+    }
+
+    void OnNewWave(int waveNumber)
+    {
+        health = startingHealth;
+        gun.EquipGun(waveNumber);
     }
 
     void Update()
@@ -54,6 +65,10 @@ public class Player : Entity
             controller.LookAt(point);
             crosshairs.transform.position = point;
             crosshairs.DetectTarget(ray);
+            if ((new Vector2(point.x, point.z) - new Vector2(transform.position.x, transform.position.z)).sqrMagnitude > 1)
+            {
+                gun.Aim(point);
+            }
         }
 
         //Weapon
@@ -64,6 +79,10 @@ public class Player : Entity
         if (Input.GetMouseButtonUp(0))
         {
             gun.OnTriggerReleased();
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            gun.Reload();
         }
 
         //Camera

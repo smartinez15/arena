@@ -5,16 +5,8 @@ using UnityEngine;
 public class GunController : MonoBehaviour
 {
     public Transform holder;
-    public Gun startingGun;
+    public Gun[] guns;
     private Gun equippedGun;
-
-    void Start()
-    {
-        if (startingGun != null)
-        {
-            EquipGun(startingGun);
-        }
-    }
 
     public void EquipGun(Gun newGun)
     {
@@ -24,6 +16,28 @@ public class GunController : MonoBehaviour
         }
         equippedGun = Instantiate(newGun, holder.position, holder.rotation) as Gun;
         equippedGun.transform.parent = holder;
+    }
+
+    public void EquipGun(int gunIndex)
+    {
+        gunIndex = Mathf.Clamp(gunIndex, 0, guns.Length - 1);
+        EquipGun(guns[gunIndex]);
+    }
+
+    public void Aim(Vector3 aimPoint)
+    {
+        if (equippedGun != null)
+        {
+            equippedGun.Aim(aimPoint);
+        }
+    }
+
+    public void Reload()
+    {
+        if (equippedGun != null)
+        {
+            equippedGun.Reload();
+        }
     }
 
     public void OnTriggerHold()
