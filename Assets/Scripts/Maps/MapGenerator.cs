@@ -6,6 +6,7 @@ public class MapGenerator : MonoBehaviour
 {
     public Transform tilePrefab;
     public Transform obstacleprefab;
+    public Transform mapFloor;
     public Transform navMeshFloor;
     public Transform bound;
 
@@ -16,7 +17,8 @@ public class MapGenerator : MonoBehaviour
     public Map[] maps;
     public int mapIndex;
 
-
+    float minObstacleHeight = 0.5f;
+    float maxObstacleHeight = 4f;
     int maxWidth = 25;
     int maxHeight = 25;
 
@@ -43,7 +45,6 @@ public class MapGenerator : MonoBehaviour
         currentMap = maps[mapIndex];
         tileMap = new Transform[currentMap.mapSize.x, currentMap.mapSize.y];
         System.Random prng = new System.Random(currentMap.seed);
-        GetComponent<BoxCollider>().size = new Vector3(currentMap.mapSize.x * tileSize, 0.05f, currentMap.mapSize.y * tileSize);
 
         //Generating Coords
         allTilesCoord = new List<Coord>();
@@ -91,7 +92,7 @@ public class MapGenerator : MonoBehaviour
             currentObstacle++;
             if (randomCoord != currentMap.mapCenter && MapIsFullyAccesible(obstacleMap, currentObstacle))
             {
-                float obstacleheight = Mathf.Lerp(currentMap.minObstacleHeight, currentMap.maxObstacleHeight, (float)prng.NextDouble());
+                float obstacleheight = Mathf.Lerp(minObstacleHeight, maxObstacleHeight, (float)prng.NextDouble());
                 Vector3 obstaclePos = CoordToPosition(randomCoord.x, randomCoord.y);
                 Transform newObstacle = Instantiate(obstacleprefab, obstaclePos + Vector3.up * obstacleheight / 2, Quaternion.identity);
                 newObstacle.parent = mapHolder;
@@ -129,6 +130,7 @@ public class MapGenerator : MonoBehaviour
         bottombound.localScale = new Vector3(maxWidth, 1, (maxHeight - currentMap.mapSize.y) / 2f) * tileSize;
 
         navMeshFloor.localScale = new Vector3(maxWidth, maxHeight) * tileSize;
+        mapFloor.localScale = new Vector3(currentMap.mapSize.x * tileSize, currentMap.mapSize.y * tileSize);
     }
 
     bool MapIsFullyAccesible(bool[,] obstacleMap, int obstacleCount)
@@ -227,8 +229,6 @@ public class MapGenerator : MonoBehaviour
         public Coord mapSize;
         [Range(0, 1)]
         public float obstaclePercent;
-        public float minObstacleHeight;
-        public float maxObstacleHeight;
         public int seed;
         public Color foreground;
         public Color background;

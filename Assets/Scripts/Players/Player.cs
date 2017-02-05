@@ -8,6 +8,8 @@ public class Player : Entity
 {
     public int playerNumber = 1;
     public float moveSpeed = 5;
+    public Crosshairs crosshairs;
+
     private PlayerController controller;
     private GunController gun;
     private Camera playerCamera;
@@ -42,7 +44,7 @@ public class Player : Entity
 
         //Rotation
         Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
-        Plane groundPlane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
+        Plane groundPlane = new Plane(Vector3.up, Vector3.up * gun.GunHeight);
         float rayDistance;
 
         if (groundPlane.Raycast(ray, out rayDistance))
@@ -50,6 +52,8 @@ public class Player : Entity
             Vector3 point = ray.GetPoint(rayDistance);
             //Debug.DrawLine(ray.origin, point, Color.red);
             controller.LookAt(point);
+            crosshairs.transform.position = point;
+            crosshairs.DetectTarget(ray);
         }
 
         //Weapon
