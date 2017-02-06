@@ -95,4 +95,10 @@ public class Player : Entity
             camCtrl.Rotate('E');
         }
     }
+
+    public override void Die()
+    {
+        AudioManager.instance.PlaySound("PlayerDeath", transform.position);
+        base.Die();
+    }
 }
