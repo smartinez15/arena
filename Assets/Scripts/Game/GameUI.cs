@@ -11,15 +11,32 @@ public class GameUI : MonoBehaviour
 
     public RectTransform levelBanner;
     public Text levelTitle;
+    public Text scoreUI;
+    public Text gameOverScore;
+    public RectTransform healthBar;
+
+    Player player;
 
     void Start()
     {
-        FindObjectOfType<Player>().OnDeath += OnGameOver;
+        player = FindObjectOfType<Player>();
+        player.OnDeath += OnGameOver;
     }
 
     void Awake()
     {
         FindObjectOfType<Spawner>().OnNewWave += OnNewWave;
+    }
+
+    void Update()
+    {
+        scoreUI.text = ScoreKeeper.score.ToString("D6");
+        float healthPercent = 0;
+        if (player != null)
+        {
+            healthPercent = player.health / (float)player.startingHealth;
+        }
+        healthBar.localScale = new Vector3(healthPercent, 1, 1);
     }
 
     void OnNewWave(int waveNumber)
@@ -38,19 +55,19 @@ public class GameUI : MonoBehaviour
         float endDelayTime = Time.time + 1 / speed + delayTime;
 
         float percent = 0;
-        while(percent >= 0)
+        while (percent >= 0)
         {
             //From -150
             //To 0
             percent += Time.deltaTime * speed * dir;
 
-            if(percent >= 1)
+            if (percent >= 1)
             {
                 percent = 1;
-                if(Time.time > endDelayTime)
+                if (Time.time > endDelayTime)
                 {
                     dir = -1;
-                } 
+                }
             }
 
             levelBanner.anchoredPosition = Vector2.up * Mathf.Lerp(-170, 0, percent);
@@ -60,7 +77,11 @@ public class GameUI : MonoBehaviour
 
     void OnGameOver()
     {
-        StartCoroutine(Fade(Color.clear, Color.black, 1));
+        Cursor.visible = true;
+        StartCoroutine(Fade(Color.clear, new Color(0, 0, 0, 0.85f), 1));
+        gameOverScore.text = "Score: " + ScoreKeeper.score;
+        scoreUI.gameObject.SetActive(false);
+        healthBar.transform.parent.gameObject.SetActive(false);
         gameOverUI.SetActive(true);
     }
 
@@ -69,7 +90,7 @@ public class GameUI : MonoBehaviour
         float speed = 1 / time;
         float percent = 0;
 
-        while(percent < 1)
+        while (percent < 1)
         {
             percent += Time.deltaTime * speed;
             fadePlane.color = Color.Lerp(from, to, percent);
@@ -81,5 +102,10 @@ public class GameUI : MonoBehaviour
     public void StartNewGame()
     {
         SceneManager.LoadScene("Game");
+    }
+
+    public void ReturnMenu()
+    {
+        SceneManager.LoadScene("Menu");
     }
 }

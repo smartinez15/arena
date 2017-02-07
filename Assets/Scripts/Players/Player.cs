@@ -94,6 +94,12 @@ public class Player : Entity
         {
             camCtrl.Rotate('E');
         }
+
+        //Bounds
+        if (transform.position.y < -20)
+        {
+            TakeDamage(health);
+        }
     }
 
     public override void Die()

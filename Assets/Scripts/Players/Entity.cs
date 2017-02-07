@@ -7,7 +7,7 @@ public class Entity : MonoBehaviour, IDamageable
 {
     public int startingHealth;
 
-    protected int health;
+    public int health { get; protected set; }
     protected bool dead;
 
     public event System.Action OnDeath;

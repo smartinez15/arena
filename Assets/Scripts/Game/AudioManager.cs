@@ -130,4 +130,15 @@ public class AudioManager : MonoBehaviour
             yield return null;
         }
     }
+
+    void OnLevelWasLoaded(int index)
+    {
+        if (playerT == null)
+        {
+            if (FindObjectOfType<Player>() != null)
+            {
+                playerT = FindObjectOfType<Player>().transform;
+            }
+        }
+    }
 }

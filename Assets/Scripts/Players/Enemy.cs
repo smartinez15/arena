@@ -14,6 +14,8 @@ public class Enemy : Entity
     }
 
     public GameObject deathFX;
+    public Material deathFxMaterial;
+    public static event System.Action onDeathStatic;
 
     State state = State.Idle;
     NavMeshAgent pathFinder;
@@ -66,16 +68,22 @@ public class Enemy : Entity
             attackDamage = targetEntity.startingHealth / hitPoints;
         }
         startingHealth = health;
-        skinMaterial = GetComponent<Renderer>().sharedMaterial;
+
+        skinMaterial = GetComponent<Renderer>().material;
         skinMaterial.color = skinColor;
         skinOriginalColor = skinColor;
+        deathFxMaterial.color = new Color(skinColor.r, skinColor.g, skinColor.b, 1);
     }
 
     public override void TakeHit(int damage, Vector3 hitpoint, Vector3 hitDirection)
     {
         AudioManager.instance.PlaySound("Impact", transform.position);
-        if (damage >= health)
+        if (damage >= health && !dead)
         {
+            if (onDeathStatic != null)
+            {
+                onDeathStatic();
+            }
             AudioManager.instance.PlaySound("EnemyDeath", transform.position);
             Destroy(Instantiate(deathFX, hitpoint, Quaternion.FromToRotation(Vector3.forward, hitDirection)) as GameObject, 4);
         }
