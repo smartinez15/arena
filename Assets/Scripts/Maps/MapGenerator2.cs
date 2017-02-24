@@ -32,11 +32,9 @@ public class MapGenerator2 : MonoBehaviour
     public float lacunarity;
     public Vector2 offset;
 
+    [Range(0, 1)]
+    public float outlinePercent;
     public int seed;
-
-    public Transform tilePrefab;
-    public Transform groundPrefab;
-    public Transform stairPrefab;
 
     void OnValidate()
     {
@@ -79,21 +77,20 @@ public class MapGenerator2 : MonoBehaviour
         }
         else if (drawMode == DrawMode.Map)
         {
-            CreateMap();
+            Color[] colors = CreateGradiant();
+            display.SculptMap(heightMap, colors, outlinePercent);
         }
     }
 
-    void CreateMap()
+    Color[] CreateGradiant()
     {
-        //creating map holder Object
-        string holderName = "Generated Map";
-        if (transform.FindChild(holderName))
+        Color[] colors = new Color[levels];
+        for(int i = 0; i < levels; i++)
         {
-            DestroyImmediate(transform.FindChild(holderName).gameObject);
+            float interpolation = i / (float)(levels <= 1 ? 1 : (levels - 1));
+            colors[i] = Color.Lerp(floor, top, interpolation);
         }
-
-        Transform mapHolder = new GameObject(holderName).transform;
-        mapHolder.parent = transform;
+        return colors;
     }
 
     int[,] CreateHeightMap(float[,] noiseMap)
@@ -106,6 +103,7 @@ public class MapGenerator2 : MonoBehaviour
             level[i].x = voidPercent + (i * levelRange);
             level[i].y = level[i].x + levelRange;
         }
+        level[levels-1].y = 1;
 
         for (int y = 0; y < heightMap.GetLength(1); y++)
         {
@@ -120,7 +118,7 @@ public class MapGenerator2 : MonoBehaviour
                 {
                     for (int i = 0; i < level.Length; i++)
                     {
-                        if (point >= level[i].x && point <= level[i].y)
+                        if (point > level[i].x && point <= level[i].y)
                         {
                             heightMap[x, y] = i;
                             break;
@@ -159,7 +157,7 @@ public class MapGenerator2 : MonoBehaviour
         System.Random prng = new System.Random(seed);
         //Noise Scale
         float interpolation = ((width * height) - 25) / (float)(40000 - 25);
-        float mean = Mathf.Lerp(0, 300, interpolation) * scaleMean.Evaluate(interpolation);
+        float mean = Mathf.Lerp(5, 300, interpolation) * scaleMean.Evaluate(interpolation);
         float stdDev = scaleDev.Evaluate(interpolation) * 20 + 5;
         noiseScale = Mathf.Clamp(Utility.RandomGaussian(seed, mean, stdDev), 2, 300);
 
