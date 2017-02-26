@@ -138,50 +138,192 @@ public class StageGenerator : MonoBehaviour
 
     int[,] StairPlacement(int[,] heightMap)
     {
-        int[,] stairPlaced = new int[heightMap.GetLength(0), heightMap.GetLength(1)];
+        int width = heightMap.GetLength(0);
+        int height = heightMap.GetLength(1);
 
-        for (int y = 0; y < heightMap.GetLength(1); y++)
+        //Identify Stairs and Inner Stairs
+        //-21 - pos X   |   -31 - pos X neg Z
+        //-22 - neg Z   |   -32 - neg X neg Z 
+        //-23 - neg X   |   -33 - neg X pos Z  
+        //-24 - pos Z   |   -34 - pos X pos Z 
+        int[,] stairsMap = new int[width, height];
+        for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < heightMap.GetLength(0); x++)
+            for (int x = 0; x < width; x++)
             {
-                stairPlaced[x, y] = heightMap[x, y];
-                if ((x > 0) && heightMap[x, y] < heightMap[x - 1, y] && heightMap[x, y] != -1 && heightMap[x - 1, y] != -1)
+                if (stairsMap[x, y] > -20)
                 {
-                    stairPlaced[x, y] = -2;
+                    stairsMap[x, y] = heightMap[x, y];
+                }
+                if (heightMap[x, y] != -1)
+                {
+                    int n = 0;
+                    bool posX, negX, posZ, negZ;
+                    posX = negX = posZ = negZ = false;
+                    if ((x < width - 1) && heightMap[x + 1, y] > heightMap[x, y])
+                    {
+                        n++;
+                        posX = true;
+                    }
+                    if ((x > 0) && heightMap[x - 1, y] > heightMap[x, y])
+                    {
+                        n++;
+                        negX = true;
+                    }
+                    if ((y < height - 1) && heightMap[x, y + 1] > heightMap[x, y])
+                    {
+                        n++;
+                        posZ = true;
+                    }
+                    if ((y > 0) && heightMap[x, y - 1] > heightMap[x, y])
+                    {
+                        n++;
+                        negZ = true;
+                    }
+                    if (n == 1)
+                    {
+                        if (posX)
+                        {
+                            stairsMap[x, y] = -21;
+                        }
+                        else if (negX)
+                        {
+                            stairsMap[x, y] = -23;
+                        }
+                        else if (posZ)
+                        {
+                            stairsMap[x, y] = -24;
+                        }
+                        else if (negZ)
+                        {
+                            stairsMap[x, y] = -22;
+                        }
+                    }
+                    else if (n == 2)
+                    {
+                        if (posX && posZ)
+                        {
+                            stairsMap[x, y] = -34;
+                        }
+                        else if (negX && posZ)
+                        {
+                            stairsMap[x, y] = -33;
+                        }
+                        else if (posX && negZ)
+                        {
+                            stairsMap[x, y] = -31;
+                        }
+                        else if (negX && negZ)
+                        {
+                            stairsMap[x, y] = -32;
+                        }
+                    }
+                    else if (n == 3)
+                    {
+                        //Correct aliasing problems
+                        stairsMap[x, y] = heightMap[x, y] + 1;
+                        if (!posX && (x < width - 1))
+                        {
+                            stairsMap[x + 1, y] = -23;
+                        }
+                        else if (!negX && x > 0)
+                        {
+                            stairsMap[x - 1, y] = -21;
+                        }
+                        else if (!posZ && (y < height - 1))
+                        {
+                            stairsMap[x, y + 1] = -22;
+                        }
+                        else if (!negZ && y > 0)
+                        {
+                            stairsMap[x, y - 1] = -24;
+                        }
+                    }
                 }
             }
         }
-        for (int x = 0; x < heightMap.GetLength(0); x++)
+
+        //Identify Outter Stairs
+        //-41 - pos X neg Z
+        //-42 - neg X neg Z
+        //-43 - neg X pos Z
+        //-44 - pos X pos Z
+        for (int y = 0; y < height; y++)
         {
-            for (int y = 0; y < heightMap.GetLength(1); y++)
+            for (int x = 0; x < width; x++)
             {
-                if ((y > 0) && heightMap[x, y] < heightMap[x, y - 1] && heightMap[x, y] != -1 && heightMap[x, y - 1] != -1)
+                bool one = false;
+                bool two = false;
+                if (stairsMap[x, y] < -20 && stairsMap[x, y] > -40)
                 {
-                    stairPlaced[x, y] = -2;
+                    if ((x < width - 1) && (y < height - 1) && stairsMap[x + 1, y + 1] < -20 && stairsMap[x + 1, y + 1] > -40)
+                    {
+                        //pos X pos Z
+                        one = (heightMap[x + 1, y] == heightMap[x, y] && stairsMap[x + 1, y] >= 0);
+
+                        two = (heightMap[x, y + 1] == heightMap[x, y] && stairsMap[x, y + 1] >= 0);
+
+                        if (one && !two)
+                        {
+                            stairsMap[x + 1, y] = -43;
+                        }
+                        else if (!one && two)
+                        {
+                            stairsMap[x, y + 1] = -41;
+                        }
+                    }
+                    if ((x < width - 1) && (y > 0) && stairsMap[x + 1, y - 1] < -20 && stairsMap[x + 1, y - 1] > -40)
+                    {
+                        //pos X neg Z
+                        one = (heightMap[x + 1, y] == heightMap[x, y] && stairsMap[x + 1, y] >= 0);
+
+                        two = (heightMap[x, y - 1] == heightMap[x, y] && stairsMap[x, y - 1] >= 0);
+
+                        if (one && !two)
+                        {
+                            stairsMap[x + 1, y] = -42;
+                        }
+                        else if (!one && two)
+                        {
+                            stairsMap[x, y - 1] = -44;
+                        }
+                    }
+                    if ((x > 0) && (y < height - 1) && stairsMap[x - 1, y + 1] < -20 && stairsMap[x - 1, y + 1] > -40)
+                    {
+                        //neg X pos Z
+                        one = (heightMap[x - 1, y] == heightMap[x, y] && stairsMap[x - 1, y] >= 0);
+
+                        two = (heightMap[x, y + 1] == heightMap[x, y] && stairsMap[x, y + 1] >= 0);
+
+                        if (one && !two)
+                        {
+                            stairsMap[x - 1, y] = -44;
+                        }
+                        else if (!one && two)
+                        {
+                            stairsMap[x, y + 1] = -42;
+                        }
+                    }
+                    if ((x > 0) && (y > 0) && stairsMap[x - 1, y - 1] < -20 && stairsMap[x - 1, y - 1] > -40)
+                    {
+                        //neg X neg Z
+                        one = (heightMap[x - 1, y] == heightMap[x, y] && stairsMap[x - 1, y] >= 0);
+
+                        two = (heightMap[x, y - 1] == heightMap[x, y] && stairsMap[x, y - 1] >= 0);
+
+                        if (one && !two)
+                        {
+                            stairsMap[x - 1, y] = -43;
+                        }
+                        else if (!one && two)
+                        {
+                            stairsMap[x, y - 1] = -41;
+                        }
+                    }
                 }
             }
         }
-        for (int y = heightMap.GetLength(1) - 1; y >= 0; y--)
-        {
-            for (int x = heightMap.GetLength(0) - 1; x >= 0; x--)
-            {
-                if ((x < heightMap.GetLength(0) - 1) && heightMap[x, y] < heightMap[x + 1, y] && heightMap[x, y] != -1 && heightMap[x + 1, y] != -1)
-                {
-                    stairPlaced[x, y] = -2;
-                }
-            }
-        }
-        for (int x = heightMap.GetLength(0) - 1; x >= 0; x--)
-        {
-            for (int y = heightMap.GetLength(1) - 1; y >= 0; y--)
-            {
-                if ((y < heightMap.GetLength(1) - 1) && heightMap[x, y] < heightMap[x, y + 1] && heightMap[x, y] != -1 && heightMap[x, y + 1] != -1)
-                {
-                    stairPlaced[x, y] = -2;
-                }
-            }
-        }
-        return stairPlaced;
+        return stairsMap;
     }
 
     Color[] CreateColorMap(int[,] heightMap)
@@ -195,13 +337,20 @@ public class StageGenerator : MonoBehaviour
                 {
                     colorMap[y * width + x] = Color.black;
                 }
-                else if (heightMap[x, y] == -2)
+                else if (heightMap[x, y] < -20 && heightMap[x, y] != 50)
                 {
-                    colorMap[y * width + x] = Color.white;
-                }
-                else if (heightMap[x, y] == -5)
-                {
-                    colorMap[y * width + x] = Color.yellow;
+                    if (heightMap[x, y] < -40)
+                    {
+                        colorMap[y * width + x] = Color.red;
+                    }
+                    else if (heightMap[x, y] < -30)
+                    {
+                        colorMap[y * width + x] = Color.gray;
+                    }
+                    else
+                    {
+                        colorMap[y * width + x] = Color.white;
+                    }
                 }
                 else
                 {
