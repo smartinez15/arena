@@ -8,6 +8,8 @@ public class MapDisplay : MonoBehaviour
     public Transform tilePrefab;
     public Transform groundPrefab;
     public Transform stairPrefab;
+    public Transform innerStairPrefab;
+    public Transform outterStairPrefab;
 
     public Shader tileShader;
 
@@ -32,7 +34,7 @@ public class MapDisplay : MonoBehaviour
 
         //Create Materials
         Material[] mats = new Material[colors.Length];
-        for(int i = 0; i < colors.Length; i++)
+        for (int i = 0; i < colors.Length; i++)
         {
             mats[i] = new Material(tileShader);
             mats[i].color = colors[i];
@@ -66,40 +68,40 @@ public class MapDisplay : MonoBehaviour
                     //Front
                     Transform fTile = Instantiate(tilePrefab);
                     fTile.localScale = Vector3.one * (1 - outline);
-                    fTile.localPosition = new Vector3(0, altura-0.5f, 0.51f);
+                    fTile.localPosition = new Vector3(0, altura - 0.5f, 0.501f);
                     fTile.localEulerAngles = new Vector3(180, 0, 0);
                     fTile.SetParent(block, true);
-                    fTile.localPosition = new Vector3(0, fTile.localPosition.y, 0.51f);
+                    fTile.localPosition = new Vector3(0, fTile.localPosition.y, 0.501f);
                     fTile.GetComponent<Renderer>().material = mats[altura - 1];
                     //Back
                     Transform bTile = Instantiate(tilePrefab);
                     bTile.localScale = Vector3.one * (1 - outline);
-                    bTile.localPosition = new Vector3(0, altura-0.5f, -0.51f);
+                    bTile.localPosition = new Vector3(0, altura - 0.5f, -0.501f);
                     bTile.localEulerAngles = new Vector3(0, 0, 0);
                     bTile.SetParent(block, true);
-                    bTile.localPosition = new Vector3(0, bTile.localPosition.y, -0.51f);
+                    bTile.localPosition = new Vector3(0, bTile.localPosition.y, -0.501f);
                     bTile.GetComponent<Renderer>().material = mats[altura - 1];
                     //Right
                     Transform rTile = Instantiate(tilePrefab);
                     rTile.localScale = Vector3.one * (1 - outline);
-                    rTile.localPosition = new Vector3(0.51f, altura-0.5f, 0);
+                    rTile.localPosition = new Vector3(0.501f, altura - 0.5f, 0);
                     rTile.localEulerAngles = new Vector3(0, -90, 0);
                     rTile.SetParent(block, true);
-                    rTile.localPosition = new Vector3(0.51f, rTile.localPosition.y, 0);
+                    rTile.localPosition = new Vector3(0.501f, rTile.localPosition.y, 0);
                     rTile.GetComponent<Renderer>().material = mats[altura - 1];
                     //Left
                     Transform lTile = Instantiate(tilePrefab);
                     lTile.localScale = Vector3.one * (1 - outline);
-                    lTile.localPosition = new Vector3(-0.51f, altura - 0.5f, 0);
+                    lTile.localPosition = new Vector3(-0.501f, altura - 0.5f, 0);
                     lTile.localEulerAngles = new Vector3(0, 90, 0);
                     lTile.SetParent(block, true);
-                    lTile.localPosition = new Vector3(-0.51f, lTile.localPosition.y, 0);
+                    lTile.localPosition = new Vector3(-0.501f, lTile.localPosition.y, 0);
                     lTile.GetComponent<Renderer>().material = mats[altura - 1];
                     //Top
                     Transform tTile = Instantiate(tilePrefab);
                     tTile.parent = block;
                     tTile.localScale = Vector3.one * (1 - outline);
-                    tTile.localPosition = new Vector3(0, 0.51f, 0);
+                    tTile.localPosition = new Vector3(0, 0.501f, 0);
                     tTile.localEulerAngles = new Vector3(90, 0, 0);
                     tTile.GetComponent<Renderer>().material = mats[altura - 1];
                 }

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapGenerator2 : MonoBehaviour
+public class StageGenerator : MonoBehaviour
 {
     public enum DrawMode
     {
         NoiseMap,
         ColorMap,
+        ColorMapStairs,
         Map
     };
     public DrawMode drawMode;
@@ -65,6 +66,7 @@ public class MapGenerator2 : MonoBehaviour
         int[,] heightMap = CreateHeightMap(noiseMap);
 
         Color[] colorMap = CreateColorMap(heightMap);
+        Color[] colorMapStairs = CreateColorMap(StairPlacement(heightMap));
 
         MapDisplay display = FindObjectOfType<MapDisplay>();
         if (drawMode == DrawMode.NoiseMap)
@@ -74,6 +76,10 @@ public class MapGenerator2 : MonoBehaviour
         else if (drawMode == DrawMode.ColorMap)
         {
             display.Draw(TextureGenerator.TextureFromColorMap(colorMap, width, height));
+        }
+        else if (drawMode == DrawMode.ColorMapStairs)
+        {
+            display.Draw(TextureGenerator.TextureFromColorMap(colorMapStairs, width, height));
         }
         else if (drawMode == DrawMode.Map)
         {
@@ -85,7 +91,7 @@ public class MapGenerator2 : MonoBehaviour
     Color[] CreateGradiant()
     {
         Color[] colors = new Color[levels];
-        for(int i = 0; i < levels; i++)
+        for (int i = 0; i < levels; i++)
         {
             float interpolation = i / (float)(levels <= 1 ? 1 : (levels - 1));
             colors[i] = Color.Lerp(floor, top, interpolation);
@@ -103,7 +109,7 @@ public class MapGenerator2 : MonoBehaviour
             level[i].x = voidPercent + (i * levelRange);
             level[i].y = level[i].x + levelRange;
         }
-        level[levels-1].y = 1;
+        level[levels - 1].y = 1;
 
         for (int y = 0; y < heightMap.GetLength(1); y++)
         {
@@ -130,6 +136,54 @@ public class MapGenerator2 : MonoBehaviour
         return heightMap;
     }
 
+    int[,] StairPlacement(int[,] heightMap)
+    {
+        int[,] stairPlaced = new int[heightMap.GetLength(0), heightMap.GetLength(1)];
+
+        for (int y = 0; y < heightMap.GetLength(1); y++)
+        {
+            for (int x = 0; x < heightMap.GetLength(0); x++)
+            {
+                stairPlaced[x, y] = heightMap[x, y];
+                if ((x > 0) && heightMap[x, y] < heightMap[x - 1, y] && heightMap[x, y] != -1 && heightMap[x - 1, y] != -1)
+                {
+                    stairPlaced[x, y] = -2;
+                }
+            }
+        }
+        for (int x = 0; x < heightMap.GetLength(0); x++)
+        {
+            for (int y = 0; y < heightMap.GetLength(1); y++)
+            {
+                if ((y > 0) && heightMap[x, y] < heightMap[x, y - 1] && heightMap[x, y] != -1 && heightMap[x, y - 1] != -1)
+                {
+                    stairPlaced[x, y] = -2;
+                }
+            }
+        }
+        for (int y = heightMap.GetLength(1) - 1; y >= 0; y--)
+        {
+            for (int x = heightMap.GetLength(0) - 1; x >= 0; x--)
+            {
+                if ((x < heightMap.GetLength(0) - 1) && heightMap[x, y] < heightMap[x + 1, y] && heightMap[x, y] != -1 && heightMap[x + 1, y] != -1)
+                {
+                    stairPlaced[x, y] = -2;
+                }
+            }
+        }
+        for (int x = heightMap.GetLength(0) - 1; x >= 0; x--)
+        {
+            for (int y = heightMap.GetLength(1) - 1; y >= 0; y--)
+            {
+                if ((y < heightMap.GetLength(1) - 1) && heightMap[x, y] < heightMap[x, y + 1] && heightMap[x, y] != -1 && heightMap[x, y + 1] != -1)
+                {
+                    stairPlaced[x, y] = -2;
+                }
+            }
+        }
+        return stairPlaced;
+    }
+
     Color[] CreateColorMap(int[,] heightMap)
     {
         Color[] colorMap = new Color[width * height];
@@ -141,6 +195,14 @@ public class MapGenerator2 : MonoBehaviour
                 {
                     colorMap[y * width + x] = Color.black;
                 }
+                else if (heightMap[x, y] == -2)
+                {
+                    colorMap[y * width + x] = Color.white;
+                }
+                else if (heightMap[x, y] == -5)
+                {
+                    colorMap[y * width + x] = Color.yellow;
+                }
                 else
                 {
                     float interpolation = heightMap[x, y] / (float)(levels <= 1 ? 1 : (levels - 1));
@@ -148,7 +210,6 @@ public class MapGenerator2 : MonoBehaviour
                 }
             }
         }
-
         return colorMap;
     }
 
@@ -159,16 +220,18 @@ public class MapGenerator2 : MonoBehaviour
         float interpolation = ((width * height) - 25) / (float)(40000 - 25);
         float mean = Mathf.Lerp(5, 300, interpolation) * scaleMean.Evaluate(interpolation);
         float stdDev = scaleDev.Evaluate(interpolation) * 20 + 5;
-        noiseScale = Mathf.Clamp(Utility.RandomGaussian(seed, mean, stdDev), 2, 300);
+        //noiseScale = Mathf.Clamp(Utility.RandomGaussian(seed, mean, stdDev), 2, 300);
+        noiseScale = 40;
 
         //Octaves
         octaves = (int)(prng.NextDouble() * 3) + 3;
 
         //Persistance
-        persistance = Mathf.Clamp(Utility.RandomGaussian(seed, 0.5f, 0.1f), 0, 1);
+        persistance = Mathf.Clamp(Utility.RandomGaussian(seed, 0.5f, 0.15f), 0, 1);
 
         //Lacunarity
-        lacunarity = Mathf.Clamp(Utility.RandomGaussian(seed, 2, 0.25f), 1, 3);
+        //lacunarity = Mathf.Clamp(Utility.RandomGaussian(seed, 2, 0.25f), 1, 3);
+        lacunarity = 1;
 
         //Offset
         offset.x = (float)(prng.NextDouble() * 2000) - 1000;

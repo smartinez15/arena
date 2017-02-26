@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(MapGenerator2))]
+[CustomEditor(typeof(StageGenerator))]
 public class MapGeneratorEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        MapGenerator2 map = target as MapGenerator2;
+        StageGenerator map = target as StageGenerator;
         if (DrawDefaultInspector())
         {
             map.GenerateMap();
