@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class AudioManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-
+            SceneManager.sceneLoaded += OnLevelFinishedLoading;
             musicSource = new AudioSource[2];
             for (int i = 0; i < musicSource.Length; i++)
             {
@@ -131,7 +132,7 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    void OnLevelWasLoaded(int index)
+    void OnLevelFinishedLoading(Scene scene, LoadSceneMode sceneMode)
     {
         if (playerT == null)
         {

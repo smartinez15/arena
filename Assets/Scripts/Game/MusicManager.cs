@@ -12,10 +12,21 @@ public class MusicManager : MonoBehaviour
 
     void Start()
     {
-        OnLevelWasLoaded(0);
+        SceneManager.sceneLoaded += OnLevelFinishedLoading;
+        OnLevelFinishedLoading(0);
     }
 
-    void OnLevelWasLoaded(int sceneIndex)
+    void OnLevelFinishedLoading(int sceneIndex)
+    {
+        string newScene = SceneManager.GetActiveScene().name;
+        if (newScene != sceneName)
+        {
+            sceneName = newScene;
+            Invoke("PlayMusic", 0.2f);
+        }
+    }
+
+    void OnLevelFinishedLoading(Scene scene, LoadSceneMode sceneMode)
     {
         string newScene = SceneManager.GetActiveScene().name;
         if (newScene != sceneName)

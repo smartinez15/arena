@@ -16,9 +16,6 @@ public class StageGenerator : MonoBehaviour
     public int width;
     public int height;
 
-    public AnimationCurve scaleMean;
-    public AnimationCurve scaleDev;
-
     public int levels;
     [Range(0, 1)]
     public float voidPercent;
@@ -64,9 +61,10 @@ public class StageGenerator : MonoBehaviour
         float[,] noiseMap = Utility.GenerateNoiseMap(width, height, seed, noiseScale, octaves, persistance, lacunarity, offset);
 
         int[,] heightMap = CreateHeightMap(noiseMap);
+        int[,] stairsMap = StairPlacement(ref heightMap);
 
         Color[] colorMap = CreateColorMap(heightMap);
-        Color[] colorMapStairs = CreateColorMap(StairPlacement(heightMap));
+        Color[] colorMapStairs = CreateColorMap(stairsMap);
 
         MapDisplay display = FindObjectOfType<MapDisplay>();
         if (drawMode == DrawMode.NoiseMap)
@@ -84,7 +82,7 @@ public class StageGenerator : MonoBehaviour
         else if (drawMode == DrawMode.Map)
         {
             Color[] colors = CreateGradiant();
-            display.SculptMap(heightMap, colors, outlinePercent);
+            display.SculptMap(heightMap, stairsMap, colors, outlinePercent);
         }
     }
 
@@ -136,7 +134,7 @@ public class StageGenerator : MonoBehaviour
         return heightMap;
     }
 
-    int[,] StairPlacement(int[,] heightMap)
+    int[,] StairPlacement(ref int[,] heightMap)
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
@@ -180,22 +178,27 @@ public class StageGenerator : MonoBehaviour
                         n++;
                         negZ = true;
                     }
+                    bool correctAliasing = false;
                     if (n == 1)
                     {
                         if (posX)
                         {
+                            correctAliasing = !(x > 0);
                             stairsMap[x, y] = -21;
                         }
                         else if (negX)
                         {
+                            correctAliasing = !(x < width - 1);
                             stairsMap[x, y] = -23;
                         }
                         else if (posZ)
                         {
+                            correctAliasing = !(y > 0);
                             stairsMap[x, y] = -24;
                         }
                         else if (negZ)
                         {
+                            correctAliasing = !(y < height - 1);
                             stairsMap[x, y] = -22;
                         }
                     }
@@ -203,25 +206,28 @@ public class StageGenerator : MonoBehaviour
                     {
                         if (posX && posZ)
                         {
+                            correctAliasing = !(x > 0 && y > 0);
                             stairsMap[x, y] = -34;
                         }
                         else if (negX && posZ)
                         {
+                            correctAliasing = !(x < width - 1 && y > 0);
                             stairsMap[x, y] = -33;
                         }
                         else if (posX && negZ)
                         {
+                            correctAliasing = !(x > 0 && y < height - 1);
                             stairsMap[x, y] = -31;
                         }
                         else if (negX && negZ)
                         {
+                            correctAliasing = !(x < width - 1 && y < height - 1);
                             stairsMap[x, y] = -32;
                         }
                     }
                     else if (n == 3)
                     {
-                        //Correct aliasing problems
-                        stairsMap[x, y] = heightMap[x, y] + 1;
+                        correctAliasing = true;
                         if (!posX && (x < width - 1))
                         {
                             stairsMap[x + 1, y] = -23;
@@ -238,6 +244,13 @@ public class StageGenerator : MonoBehaviour
                         {
                             stairsMap[x, y - 1] = -24;
                         }
+                    }
+
+                    //Correct aliasing problems
+                    if (correctAliasing)
+                    {
+                        heightMap[x, y]++;
+                        stairsMap[x, y] = heightMap[x, y];
                     }
                 }
             }
@@ -259,25 +272,25 @@ public class StageGenerator : MonoBehaviour
                     if ((x < width - 1) && (y < height - 1) && stairsMap[x + 1, y + 1] < -20 && stairsMap[x + 1, y + 1] > -40)
                     {
                         //pos X pos Z
-                        one = (heightMap[x + 1, y] == heightMap[x, y] && stairsMap[x + 1, y] >= 0);
+                        one = (heightMap[x + 1, y] == heightMap[x, y]);
 
-                        two = (heightMap[x, y + 1] == heightMap[x, y] && stairsMap[x, y + 1] >= 0);
+                        two = (heightMap[x, y + 1] == heightMap[x, y]);
 
                         if (one && !two)
                         {
-                            stairsMap[x + 1, y] = -43;
+                            stairsMap[x + 1, y] = -41;
                         }
                         else if (!one && two)
                         {
-                            stairsMap[x, y + 1] = -41;
+                            stairsMap[x, y + 1] = -43;
                         }
                     }
                     if ((x < width - 1) && (y > 0) && stairsMap[x + 1, y - 1] < -20 && stairsMap[x + 1, y - 1] > -40)
                     {
                         //pos X neg Z
-                        one = (heightMap[x + 1, y] == heightMap[x, y] && stairsMap[x + 1, y] >= 0);
+                        one = (heightMap[x + 1, y] == heightMap[x, y]);
 
-                        two = (heightMap[x, y - 1] == heightMap[x, y] && stairsMap[x, y - 1] >= 0);
+                        two = (heightMap[x, y - 1] == heightMap[x, y]);
 
                         if (one && !two)
                         {
@@ -291,9 +304,9 @@ public class StageGenerator : MonoBehaviour
                     if ((x > 0) && (y < height - 1) && stairsMap[x - 1, y + 1] < -20 && stairsMap[x - 1, y + 1] > -40)
                     {
                         //neg X pos Z
-                        one = (heightMap[x - 1, y] == heightMap[x, y] && stairsMap[x - 1, y] >= 0);
+                        one = (heightMap[x - 1, y] == heightMap[x, y]);
 
-                        two = (heightMap[x, y + 1] == heightMap[x, y] && stairsMap[x, y + 1] >= 0);
+                        two = (heightMap[x, y + 1] == heightMap[x, y]);
 
                         if (one && !two)
                         {
@@ -307,17 +320,17 @@ public class StageGenerator : MonoBehaviour
                     if ((x > 0) && (y > 0) && stairsMap[x - 1, y - 1] < -20 && stairsMap[x - 1, y - 1] > -40)
                     {
                         //neg X neg Z
-                        one = (heightMap[x - 1, y] == heightMap[x, y] && stairsMap[x - 1, y] >= 0);
+                        one = (heightMap[x - 1, y] == heightMap[x, y]);
 
-                        two = (heightMap[x, y - 1] == heightMap[x, y] && stairsMap[x, y - 1] >= 0);
+                        two = (heightMap[x, y - 1] == heightMap[x, y]);
 
                         if (one && !two)
                         {
-                            stairsMap[x - 1, y] = -43;
+                            stairsMap[x - 1, y] = -41;
                         }
                         else if (!one && two)
                         {
-                            stairsMap[x, y - 1] = -41;
+                            stairsMap[x, y - 1] = -43;
                         }
                     }
                 }
@@ -365,12 +378,9 @@ public class StageGenerator : MonoBehaviour
     void GenerateVariables()
     {
         System.Random prng = new System.Random(seed);
+
         //Noise Scale
-        float interpolation = ((width * height) - 25) / (float)(40000 - 25);
-        float mean = Mathf.Lerp(5, 300, interpolation) * scaleMean.Evaluate(interpolation);
-        float stdDev = scaleDev.Evaluate(interpolation) * 20 + 5;
-        //noiseScale = Mathf.Clamp(Utility.RandomGaussian(seed, mean, stdDev), 2, 300);
-        noiseScale = 40;
+        noiseScale = Utility.RandomGaussian(seed, 40f, 5f);
 
         //Octaves
         octaves = (int)(prng.NextDouble() * 3) + 3;
@@ -379,7 +389,6 @@ public class StageGenerator : MonoBehaviour
         persistance = Mathf.Clamp(Utility.RandomGaussian(seed, 0.5f, 0.15f), 0, 1);
 
         //Lacunarity
-        //lacunarity = Mathf.Clamp(Utility.RandomGaussian(seed, 2, 0.25f), 1, 3);
         lacunarity = 1;
 
         //Offset

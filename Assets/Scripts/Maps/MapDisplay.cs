@@ -28,7 +28,7 @@ public class MapDisplay : MonoBehaviour
         textureRenderer.transform.localScale = new Vector3(texture.width / 10f, 1, texture.height / 10f);
     }
 
-    public void SculptMap(int[,] heightMap, Color[] colors, float outline)
+    public void SculptMap(int[,] heightMap, int[,] stairsMap, Color[] colors, float outline)
     {
         textureRenderer.transform.localScale = Vector3.zero;
 
@@ -64,46 +64,54 @@ public class MapDisplay : MonoBehaviour
                     Transform block = Instantiate(groundPrefab, CoordToPosition(x, altura, y), Quaternion.identity);
                     block.localScale = new Vector3(1, altura, 1);
                     block.parent = mapHolder;
-                    //Create Tiles
-                    //Front
-                    Transform fTile = Instantiate(tilePrefab);
-                    fTile.localScale = Vector3.one * (1 - outline);
-                    fTile.localPosition = new Vector3(0, altura - 0.5f, 0.501f);
-                    fTile.localEulerAngles = new Vector3(180, 0, 0);
-                    fTile.SetParent(block, true);
-                    fTile.localPosition = new Vector3(0, fTile.localPosition.y, 0.501f);
-                    fTile.GetComponent<Renderer>().material = mats[altura - 1];
-                    //Back
-                    Transform bTile = Instantiate(tilePrefab);
-                    bTile.localScale = Vector3.one * (1 - outline);
-                    bTile.localPosition = new Vector3(0, altura - 0.5f, -0.501f);
-                    bTile.localEulerAngles = new Vector3(0, 0, 0);
-                    bTile.SetParent(block, true);
-                    bTile.localPosition = new Vector3(0, bTile.localPosition.y, -0.501f);
-                    bTile.GetComponent<Renderer>().material = mats[altura - 1];
-                    //Right
-                    Transform rTile = Instantiate(tilePrefab);
-                    rTile.localScale = Vector3.one * (1 - outline);
-                    rTile.localPosition = new Vector3(0.501f, altura - 0.5f, 0);
-                    rTile.localEulerAngles = new Vector3(0, -90, 0);
-                    rTile.SetParent(block, true);
-                    rTile.localPosition = new Vector3(0.501f, rTile.localPosition.y, 0);
-                    rTile.GetComponent<Renderer>().material = mats[altura - 1];
-                    //Left
-                    Transform lTile = Instantiate(tilePrefab);
-                    lTile.localScale = Vector3.one * (1 - outline);
-                    lTile.localPosition = new Vector3(-0.501f, altura - 0.5f, 0);
-                    lTile.localEulerAngles = new Vector3(0, 90, 0);
-                    lTile.SetParent(block, true);
-                    lTile.localPosition = new Vector3(-0.501f, lTile.localPosition.y, 0);
-                    lTile.GetComponent<Renderer>().material = mats[altura - 1];
-                    //Top
-                    Transform tTile = Instantiate(tilePrefab);
-                    tTile.parent = block;
-                    tTile.localScale = Vector3.one * (1 - outline);
-                    tTile.localPosition = new Vector3(0, 0.501f, 0);
-                    tTile.localEulerAngles = new Vector3(90, 0, 0);
-                    tTile.GetComponent<Renderer>().material = mats[altura - 1];
+                    //Check Stairs
+                    if (stairsMap[x, y] > -20)
+                    {
+                        //Create Top Tile
+                        Transform tTile = Instantiate(tilePrefab);
+                        tTile.parent = block;
+                        tTile.localScale = Vector3.one * (1 - outline);
+                        tTile.localPosition = new Vector3(0, 0.501f, 0);
+                        tTile.localEulerAngles = new Vector3(90, 0, 0);
+                        tTile.GetComponent<Renderer>().material = mats[altura - 1];
+                    }
+                    else
+                    {
+                        //Create Stairs
+                        int stair = stairsMap[x, y];
+                        Transform stairT = null;
+                        if (stair < -40)
+                        {
+                            stairT = Instantiate(outterStairPrefab);
+                        }
+                        else if (stair < -30)
+                        {
+                            stairT = Instantiate(innerStairPrefab);
+                        }
+                        else
+                        {
+                            stairT = Instantiate(stairPrefab);
+                        }
+                        Vector3 pos = CoordToPosition(x, altura + 1, y);
+                        stairT.position = new Vector3(pos.x, altura + 0.5f, pos.z);
+                        stairT.parent = mapHolder;
+                        int rot = ((-1) * stair) % 10;
+                        switch (rot)
+                        {
+                            case 1:
+                                stairT.eulerAngles = new Vector3(0f, 0f, 0f);
+                                break;
+                            case 2:
+                                stairT.eulerAngles = new Vector3(0f, 90f, 0f);
+                                break;
+                            case 3:
+                                stairT.eulerAngles = new Vector3(0f, 180f, 0f);
+                                break;
+                            case 4:
+                                stairT.eulerAngles = new Vector3(0f, 270f, 0f);
+                                break;
+                        }
+                    }
                 }
             }
         }
