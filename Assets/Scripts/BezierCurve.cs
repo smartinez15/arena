@@ -63,7 +63,7 @@ public class BezierCurve : MonoBehaviour
         {
             hLines[i] = (Instantiate(line) as GameObject).GetComponent<LineRenderer>();
             hLines[i].transform.SetParent(curveHolder);
-            hLines[i].numPositions = 2;
+            hLines[i].positionCount = 2;
         }
         pos2[0] = a.position;
         pos2[1] = ah.position;
@@ -77,7 +77,7 @@ public class BezierCurve : MonoBehaviour
         {
             fLine = (Instantiate(line) as GameObject).GetComponent<LineRenderer>();
             fLine.transform.SetParent(curveHolder);
-            fLine.numPositions = 2;
+            fLine.positionCount = 2;
             pos2[0] = ah.position;
             pos2[1] = bh.position;
             fLine.SetPositions(pos2);
@@ -89,7 +89,7 @@ public class BezierCurve : MonoBehaviour
             {
                 fPoints[i] = (Instantiate(line) as GameObject).GetComponent<LineRenderer>();
                 fPoints[i].transform.SetParent(curveHolder);
-                fPoints[i].numPositions = 2;
+                fPoints[i].positionCount = 2;
                 fPoints[i].startWidth = 0.3f;
                 fPoints[i].endWidth = 0.3f;
             }
@@ -108,7 +108,7 @@ public class BezierCurve : MonoBehaviour
         {
             sLine = (Instantiate(line) as GameObject).GetComponent<LineRenderer>();
             sLine.transform.SetParent(curveHolder);
-            sLine.numPositions = 3;
+            sLine.positionCount = 3;
             sLine.startWidth = 0.05f;
             sLine.endWidth = 0.05f;
             pos3[0] = pa;
@@ -123,7 +123,7 @@ public class BezierCurve : MonoBehaviour
             {
                 sPoints[i] = (Instantiate(line) as GameObject).GetComponent<LineRenderer>();
                 sPoints[i].transform.SetParent(curveHolder);
-                sPoints[i].numPositions = 2;
+                sPoints[i].positionCount = 2;
                 sPoints[i].startWidth = 0.3f;
                 sPoints[i].endWidth = 0.3f;
             }
@@ -139,7 +139,7 @@ public class BezierCurve : MonoBehaviour
         {
             tanLine = (Instantiate(line) as GameObject).GetComponent<LineRenderer>();
             tanLine.transform.SetParent(curveHolder);
-            tanLine.numPositions = 2;
+            tanLine.positionCount = 2;
             tanLine.startWidth = 0.02f;
             tanLine.endWidth = 0.02f;
             pos2[0] = pa_ab;
@@ -151,7 +151,7 @@ public class BezierCurve : MonoBehaviour
         {
             curPoint = (Instantiate(line) as GameObject).GetComponent<LineRenderer>();
             curPoint.transform.SetParent(curveHolder);
-            curPoint.numPositions = 2;
+            curPoint.positionCount = 2;
             curPoint.startWidth = 0.3f;
             curPoint.endWidth = 0.3f;
             pos2[0] = x;
@@ -165,14 +165,14 @@ public class BezierCurve : MonoBehaviour
         {
             curLine = (Instantiate(line) as GameObject).GetComponent<LineRenderer>();
             curLine.transform.SetParent(curveHolder);
-            curLine.numPositions = 2;
+            curLine.positionCount = 2;
             curLine.startWidth = 0.3f;
             curLine.endWidth = 0.3f;
             curLine.startColor = Color.blue;
             curLine.endColor = Color.blue;
 
             int samplePoints = Mathf.CeilToInt(t / 0.02f);
-            curLine.numPositions = samplePoints;
+            curLine.positionCount = samplePoints;
             curLine.SetPositions(sample);
         }
     }
