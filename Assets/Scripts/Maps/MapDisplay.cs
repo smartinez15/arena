@@ -10,8 +10,11 @@ public class MapDisplay : MonoBehaviour
     public Transform stairPrefab;
     public Transform innerStairPrefab;
     public Transform outterStairPrefab;
+    public Transform stairColliderPrefab;
+    public Transform innerStairColliderPrefab;
+    public Transform outterStairColliderPrefab;
 
-    public Shader tileShader;
+    public Material tileMat;
 
     private int mapHeight;
     private int mapWidth;
@@ -131,14 +134,20 @@ public class MapDisplay : MonoBehaviour
                         if (stair < -40)
                         {
                             stairT = Instantiate(outterStairPrefab);
+                            Transform son = Instantiate(outterStairColliderPrefab);
+                            son.parent = stairT;
                         }
                         else if (stair < -30)
                         {
                             stairT = Instantiate(innerStairPrefab);
+                            Transform son = Instantiate(innerStairColliderPrefab);
+                            son.parent = stairT;
                         }
                         else
                         {
                             stairT = Instantiate(stairPrefab);
+                            Transform son = Instantiate(stairColliderPrefab);
+                            son.parent = stairT;
                         }
                         stairT.position = CoordToPosition(x + 0.5f, altura, y + 0.5f);
                         stairT.parent = mapHolder;
