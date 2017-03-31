@@ -14,7 +14,7 @@ public class MapDisplay : MonoBehaviour
     public Transform innerStairColliderPrefab;
     public Transform outterStairColliderPrefab;
 
-    public Material tileMat;
+    public Material[] tileMats;
 
     private int mapHeight;
     private int mapWidth;
@@ -46,6 +46,13 @@ public class MapDisplay : MonoBehaviour
 
         mapWidth = heightMap.GetLength(0);
         mapHeight = heightMap.GetLength(1);
+
+        //Creating tiles materials
+        for (int i = 0; i < colors.Length && i < tileMats.Length; i++)
+        {
+            tileMats[i].color = colors[i];
+        }
+
         //Creating Ground Blocks
         for (int i = 0; i < colors.Length; i++)
         {
@@ -167,6 +174,16 @@ public class MapDisplay : MonoBehaviour
                                 stairT.eulerAngles = new Vector3(0f, 270f, 0f);
                                 break;
                         }
+                    }
+                    //Putting tiles
+                    else if (i == 0 && heightMap[x, y] != -1)
+                    {
+                        int altura = heightMap[x, y];
+                        Transform tile = Instantiate(tilePrefab);
+                        tile.SetParent(mapHolder);
+                        tile.localScale = tile.localScale * (1 - outline);
+                        tile.position = CoordToPosition(x, altura, y) + new Vector3(0.5f, 0.51f, 0.5f);
+                        tile.GetComponent<Renderer>().material = tileMats[Mathf.Clamp(altura, 0, 4)];
                     }
                 }
             }
