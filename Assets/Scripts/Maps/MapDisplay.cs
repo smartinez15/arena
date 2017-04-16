@@ -31,7 +31,7 @@ public class MapDisplay : MonoBehaviour
         textureRenderer.transform.localScale = new Vector3(texture.width / 10f, 1, texture.height / 10f);
     }
 
-    public void SculptMap(int[,] heightMap, int[,] stairsMap, Color[] colors, float outline)
+    public void SculptMap(int[,] heightMap, int[,] stairsMap, Color[] colors, float outline, float stageSize)
     {
         textureRenderer.transform.localScale = Vector3.zero;
 
@@ -188,6 +188,32 @@ public class MapDisplay : MonoBehaviour
                 }
             }
         }
+
+        //Putting stage walls
+        Transform wallFront = GameObject.CreatePrimitive(PrimitiveType.Quad).transform;
+        wallFront.SetParent(mapHolder);
+        wallFront.localScale = new Vector3(mapWidth, 20f, 1f);
+        wallFront.localPosition = new Vector3(0.5f, 10f, mapHeight / 2f + 0.5f);
+
+        Transform wallBack = GameObject.CreatePrimitive(PrimitiveType.Quad).transform;
+        wallBack.SetParent(mapHolder);
+        wallBack.localEulerAngles = Vector3.up * 180;
+        wallBack.localScale = new Vector3(mapWidth, 20f, 1f);
+        wallBack.localPosition = new Vector3(0.5f, 10f, -1 * (mapHeight / 2f - 0.5f));
+
+        Transform wallRight = GameObject.CreatePrimitive(PrimitiveType.Quad).transform;
+        wallRight.SetParent(mapHolder);
+        wallRight.localEulerAngles = Vector3.up * 90;
+        wallRight.localScale = new Vector3(mapHeight, 20f, 1f);
+        wallRight.localPosition = new Vector3((mapWidth / 2f + 0.5f), 10f, 0.5f);
+
+        Transform wallLeft = GameObject.CreatePrimitive(PrimitiveType.Quad).transform;
+        wallLeft.SetParent(mapHolder);
+        wallLeft.localEulerAngles = Vector3.up * -90;
+        wallLeft.localScale = new Vector3(mapHeight, 20f, 1f);
+        wallLeft.localPosition = new Vector3(-1 * (mapWidth / 2f - 0.5f), 10f, 0.5f);
+
+        mapHolder.localScale = Vector3.one * stageSize;
     }
 
     Vector3 CoordToPosition(float x, int i, float y)
