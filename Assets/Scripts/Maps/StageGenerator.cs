@@ -23,15 +23,16 @@ public class StageGenerator : MonoBehaviour
     public Color floor;
     public Color top;
 
-    public float noiseScale;
-    public int octaves;
+    private float noiseScale;
+    private int octaves;
     [Range(0, 1)]
-    public float persistance;
-    public float lacunarity;
-    public Vector2 offset;
+    private float persistance;
+    private float lacunarity;
+    private Vector2 offset;
 
     [Range(0, 1)]
     public float outlinePercent;
+    public float stageSize;
     public int seed;
 
     void OnValidate()
@@ -51,6 +52,10 @@ public class StageGenerator : MonoBehaviour
         if (width < 1)
         {
             width = 1;
+        }
+        if (stageSize < 1)
+        {
+            stageSize = 1;
         }
     }
 
@@ -82,7 +87,7 @@ public class StageGenerator : MonoBehaviour
         else if (drawMode == DrawMode.Map)
         {
             Color[] colors = CreateGradiant();
-            display.SculptMap(heightMap, stairsMap, colors, outlinePercent);
+            display.SculptMap(heightMap, stairsMap, colors, outlinePercent, stageSize);
         }
     }
 

@@ -34,7 +34,7 @@ public class Player : Entity
                 break;
             }
         }
-        FindObjectOfType<Spawner>().OnNewWave += OnNewWave;
+        //FindObjectOfType<Spawner>().OnNewWave += OnNewWave;
     }
 
     void OnNewWave(int waveNumber)
